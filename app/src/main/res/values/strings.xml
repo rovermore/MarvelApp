@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MarvelApp</string>
+    <string name="error_string">Error al recuperar los datos</string>
+    <string name="reload">Reload</string>
+</resources>
