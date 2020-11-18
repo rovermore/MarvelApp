@@ -1,6 +1,6 @@
 # MarvelApp
 - Kotlin as main language
-- Using CLEAN aquitechture
+- Using CLEAN architecture
 - MVVM as presenter pattern
 - Dagger 2 for dependency injection
 - Coroutines and LiveData for asynchronous tasks
