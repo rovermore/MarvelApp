@@ -76,7 +76,7 @@ class MainAdapter (
                     Picasso.with(context)
                         .load(character.image.getImageUrl())
                         .error(R.drawable.ic_baseline_error_24)
-                        .placeholder(R.drawable.ic_baseline_error_24)
+                        .placeholder(R.drawable.ic_marvel)
                         .into(characterImageView)
 
                 }

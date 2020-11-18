@@ -71,6 +71,7 @@ class DetailFragment : Fragment() {
                 Picasso.with(context)
                     .load(character.image.getBigImageUrl())
                     .error(R.drawable.ic_baseline_error_24)
+                    .placeholder(R.drawable.ic_marvel)
                     .into(posterImageView) }
         }
 

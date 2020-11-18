@@ -1,7 +1,6 @@
 package com.example.marvelapp.screen.main
 
-import android.util.Log
-import android.widget.Toast
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,7 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 
 class MainViewModel
 @Inject constructor(private val networkConnection: NetworkConnection,
@@ -34,8 +32,8 @@ class MainViewModel
 
     private var totalOffset = 0
 
-    fun initialize(offset: Int) {
-        loadData(offset)
+    fun initialize() {
+        loadData(0)
     }
 
     fun loadData(offset: Int) {

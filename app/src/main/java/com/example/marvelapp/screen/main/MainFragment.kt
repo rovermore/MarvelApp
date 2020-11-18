@@ -2,7 +2,6 @@ package com.example.marvelapp.screen.main
 
 import android.os.Bundle
 import android.util.Log
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,12 +34,16 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     private var totalOffset = 0
     private val OFFSET = 20
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mainViewModel.initialize()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         layoutManager = GridLayoutManager(context,2)
-        if (totalOffset == 0) mainViewModel.initialize(totalOffset)
         setupObservers()
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
@@ -56,7 +59,7 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     private fun setupReloadButton() {
         reloadButton.setOnClickListener {
             adapter.clearMainAdapter()
-            mainViewModel.initialize(totalOffset)
+            mainViewModel.initialize()
         }
     }
 
@@ -89,6 +92,7 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
+        totalOffset = 0
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -122,7 +126,10 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
                 recyclerView.gone()
                 errorView.visible()
             }
-            ScreenState.Loading -> progressBar.visible()
+            ScreenState.Loading -> {
+                progressBar.visible()
+                progressBar.bringToFront()
+            }
             ScreenState.Success -> {
                 progressBar.gone()
                 recyclerView.visible()
