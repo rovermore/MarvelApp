@@ -1,6 +1,7 @@
 package com.example.marvelapp.screen.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -90,7 +91,6 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = adapter
-        totalOffset = 0
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -110,6 +110,7 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         if (screenState != ScreenState.Loading) {
             if ((visibleItemCount + scrolledItems) > totalCount) {
                 totalOffset += OFFSET
+                Log.v("OFFSET: ", totalOffset.toString())
                 mainViewModel.loadData(totalOffset)
 
             }
