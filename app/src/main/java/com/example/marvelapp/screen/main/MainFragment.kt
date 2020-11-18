@@ -1,7 +1,6 @@
 package com.example.marvelapp.screen.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -76,7 +75,6 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     }
 
     private fun observeData() {
-
         mainViewModel.uiModel.observe(this, Observer {
             adapter.updateTransactionList(it.toMutableList())
         })
@@ -112,7 +110,6 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         if (screenState != ScreenState.Loading) {
             if ((visibleItemCount + scrolledItems) > totalCount) {
                 totalOffset += OFFSET
-                Log.v("OFFSET: ", totalOffset.toString())
                 mainViewModel.loadData(totalOffset)
 
             }

@@ -9,6 +9,6 @@ import dagger.Provides
 class ApiRepositoryModule {
 
     @Provides
-    fun transactionApiRepository(retrofitApiClientImplementation: RetrofitApiClientImplementation): ApiRepository =
+    fun apiRepository(retrofitApiClientImplementation: RetrofitApiClientImplementation): ApiRepository =
         ApiRepository(retrofitApiClientImplementation)
 }

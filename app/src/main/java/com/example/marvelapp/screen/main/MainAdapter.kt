@@ -47,8 +47,8 @@ class MainAdapter (
                 for (character in characterList) {
                     this.characterList!!.add(character)
                 }
+                notifyDataSetChanged()
             }
-            notifyDataSetChanged()
         }
     }
 
