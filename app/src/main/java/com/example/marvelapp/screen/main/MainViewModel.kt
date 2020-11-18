@@ -57,19 +57,17 @@ class MainViewModel
     private fun observeResponse() {
         viewModelScope.launch {
             val response = catalogListUseCase.requestWithParameter(totalOffset.toString())
-            if (response.data == null) {
-                displayError()
-            } else if (response.data.results.isNullOrEmpty()) {
-                displayError()
-            } else {
-                createAndPostUiModel(response.data.results)
-            }
+            response.data?.let {
+                if (it.results.isNullOrEmpty()) displayError()
+                else createAndPostUiModel(it.results)
+            } ?: displayError()
         }
-
     }
 
     private fun displayError() {
-        _uiState.setValue(ScreenState.Error)
+        viewModelScope.launch {
+            _uiState.setValue(ScreenState.Error)
+        }
     }
 
     private fun createAndPostUiModel(response: List<Character>) {
