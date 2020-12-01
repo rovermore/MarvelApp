@@ -4,24 +4,18 @@ package com.example.marvelapp.screen.main
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.marvelapp.model.Character
 import com.example.marvelapp.usecase.CatalogListUseCase
 import com.example.marvelapp.utils.NetworkConnection
 import com.example.marvelapp.utils.ScreenState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class MainViewModel
 @Inject constructor(private val networkConnection: NetworkConnection,
                     private val catalogListUseCase: CatalogListUseCase
 ) : ViewModel() {
-
-    private val coroutineContext: CoroutineContext get() = Job() + Dispatchers.Main
-    private val viewModelScope = CoroutineScope(coroutineContext)
 
     private val _uiModel =
         MutableLiveData<List<Character>>()
@@ -38,7 +32,7 @@ class MainViewModel
 
     fun loadData(offset: Int) {
         totalOffset = offset
-        _uiState.setValue(ScreenState.Loading)
+        _uiState.value = ScreenState.Loading
         checkInternetConnection()
     }
 
@@ -72,7 +66,7 @@ class MainViewModel
 
     private fun createAndPostUiModel(response: List<Character>) {
         viewModelScope.launch {
-            _uiModel.setValue(response)
+            _uiModel.value = response
             _uiState.setValue(ScreenState.Success)
         }
     }

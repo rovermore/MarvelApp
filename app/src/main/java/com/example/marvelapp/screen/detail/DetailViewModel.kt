@@ -3,25 +3,18 @@ package com.example.marvelapp.screen.detail
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.marvelapp.model.Character
 import com.example.marvelapp.usecase.DetailUseCase
 import com.example.marvelapp.utils.NetworkConnection
 import com.example.marvelapp.utils.ScreenState
-
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 class DetailViewModel
     @Inject constructor(private val networkConnection: NetworkConnection,
                         private val detailUseCase: DetailUseCase
     ) : ViewModel() {
-
-    private val coroutineContext: CoroutineContext get() = Job() + Dispatchers.Main
-    private val viewModelScope = CoroutineScope(coroutineContext)
 
     private val _uiModel =
         MutableLiveData<Character>()
@@ -38,7 +31,7 @@ class DetailViewModel
     }
 
     fun loadData() {
-        _uiState.setValue(ScreenState.Loading)
+        _uiState.value = ScreenState.Loading
         checkInternetConnection()
     }
 
@@ -66,12 +59,12 @@ class DetailViewModel
     }
 
     private fun displayError() {
-        _uiState.setValue(ScreenState.Error)
+        _uiState.value = ScreenState.Error
     }
 
     private fun createAndPostUiModel(response: Character) {
         viewModelScope.launch {
-            _uiModel.setValue(response)
+            _uiModel.value = response
             _uiState.setValue(ScreenState.Success)
         }
     }
