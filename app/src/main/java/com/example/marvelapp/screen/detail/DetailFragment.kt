@@ -1,22 +1,20 @@
 package com.example.marvelapp.screen.detail
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.marvelapp.MarvelApp
 import com.example.marvelapp.R
+import com.example.marvelapp.databinding.FragmentDetailBinding
 import com.example.marvelapp.model.Character
 import com.example.marvelapp.utils.ScreenState
 import com.example.marvelapp.utils.gone
 import com.example.marvelapp.utils.visible
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.error_view.*
-import kotlinx.android.synthetic.main.fragment_detail.*
 import javax.inject.Inject
-
 
 
 class DetailFragment : Fragment() {
@@ -24,69 +22,87 @@ class DetailFragment : Fragment() {
     @Inject
     lateinit var detailViewModel: DetailViewModel
 
+    private var _binding: FragmentDetailBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = FragmentDetailBinding.inflate(inflater, container, false)
         val bundle = arguments
         val movieId = bundle?.getString("characterId")
         detailViewModel.initialize(movieId)
         setupObservers()
-        return inflater.inflate(R.layout.fragment_detail, container, false)
+        return binding.root
     }
 
-        init { MarvelApp.daggerAppComponent().inject(this) }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
+    init {
+        MarvelApp.daggerAppComponent().inject(this)
+    }
+
+    private fun setupReloadButton() {
+        binding.detailErrorView.reloadButton.setOnClickListener { detailViewModel.loadData() }
+    }
+
+    private fun setupObservers() {
+        observeData()
+        observeState()
+    }
+
+    private fun observeState() {
+        detailViewModel.uiState.observe(viewLifecycleOwner, Observer {
+            setupReloadButton()
+            updateUI(it)
+        })
+    }
+
+    private fun observeData() {
+        detailViewModel.uiModel.observe(viewLifecycleOwner, Observer {
+            setupUI(it)
+        })
+    }
+
+    private fun setupUI(character: Character) {
+        binding.nameTextView.text = character.name
+        binding.descriptionTextView.text = character.description
+
+        character.image?.run {
+            Picasso.with(context)
+                .load(character.image.getBigImageUrl())
+                .error(R.drawable.ic_baseline_error_24)
+                .placeholder(R.drawable.ic_marvel)
+                .into(binding.posterImageView)
         }
+    }
 
-        private fun setupReloadButton() {
-            reloadButton.setOnClickListener { detailViewModel.loadData() }
-        }
-
-        private fun setupObservers() {
-            observeData()
-            observeState()
-        }
-
-        private fun observeState() {
-            detailViewModel.uiState.observe(this, Observer {
-                setupReloadButton()
-                updateUI(it)
-            })
-        }
-
-        private fun observeData() {
-            detailViewModel.uiModel.observe(this, Observer {
-                setupUI(it)
-            })
-        }
-
-        private fun setupUI(character: Character) {
-            nameTextView.text = character.name
-            descriptionTextView.text = character.description
-
-            character.image?.run {
-                Picasso.with(context)
-                    .load(character.image.getBigImageUrl())
-                    .error(R.drawable.ic_baseline_error_24)
-                    .placeholder(R.drawable.ic_marvel)
-                    .into(posterImageView) }
-        }
-
-        private fun updateUI(it: ScreenState?) {
-            when (it) {
-                ScreenState.Error -> {
+    private fun updateUI(it: ScreenState?) {
+        when (it) {
+            ScreenState.Error -> {
+                binding.apply {
                     detailProgressBar.gone()
                     detailView.gone()
-                    detailErrorView.visible()
+                    detailErrorView.apply {
+                        errorImage.visible()
+                        errorText.visible()
+                        reloadButton.visible()
+                    }
                 }
-                ScreenState.Loading -> detailProgressBar.visible()
-                ScreenState.Success -> {
+            }
+            ScreenState.Loading -> binding.detailProgressBar.visible()
+            ScreenState.Success -> {
+                binding.apply {
                     detailProgressBar.gone()
                     detailView.visible()
                 }
             }
         }
+    }
 }

@@ -13,12 +13,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.marvelapp.MarvelApp
 import com.example.marvelapp.R
+import com.example.marvelapp.databinding.FragmentMainBinding
 import com.example.marvelapp.model.Character
 import com.example.marvelapp.utils.ScreenState
 import com.example.marvelapp.utils.gone
 import com.example.marvelapp.utils.visible
-import kotlinx.android.synthetic.main.error_view.*
-import kotlinx.android.synthetic.main.fragment_main.*
 import javax.inject.Inject
 
 
@@ -26,6 +25,11 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
 
     @Inject
     lateinit var mainViewModel: MainViewModel
+
+    private var _binding: FragmentMainBinding? = null
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
 
     private lateinit var recyclerView: RecyclerView
     private var adapter = MainAdapter(null, this)
@@ -43,9 +47,10 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        _binding = FragmentMainBinding.inflate(inflater, container, false)
         layoutManager = GridLayoutManager(context,2)
         setupObservers()
-        return inflater.inflate(R.layout.fragment_main, container, false)
+        return binding.root
     }
 
     init { MarvelApp.daggerAppComponent().inject(this) }
@@ -56,8 +61,13 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         setupReloadButton()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun setupReloadButton() {
-        reloadButton.setOnClickListener {
+        binding.errorView.reloadButton.setOnClickListener {
             adapter.clearMainAdapter()
             mainViewModel.initialize()
         }
@@ -69,14 +79,14 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     }
 
     private fun observeState() {
-        mainViewModel.uiState.observe(this, Observer {
+        mainViewModel.uiState.observe(viewLifecycleOwner, Observer {
             screenState = it
             updateUI()
         })
     }
 
     private fun observeData() {
-        mainViewModel.uiModel.observe(this, Observer {
+        mainViewModel.uiModel.observe(viewLifecycleOwner, Observer {
             adapter.updateTransactionList(it.toMutableList())
         })
     }
@@ -86,7 +96,7 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     }
 
     private fun setUpRecyclerView() {
-        recyclerView = mainRecycler
+        recyclerView = binding.mainRecycler
         recyclerView.visibility = View.GONE
         recyclerView.layoutManager = layoutManager
         recyclerView.setHasFixedSize(true)
@@ -120,16 +130,27 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     private fun updateUI() {
         when (screenState) {
             ScreenState.Error -> {
-                progressBar.gone()
+                binding.apply {
+                    progressBar.gone()
+                    errorView.apply {
+                        errorImage.visible()
+                        errorText.visible()
+                        reloadButton.visible()
+                    }
+                }
                 recyclerView.gone()
-                errorView.visible()
+
             }
             ScreenState.Loading -> {
-                progressBar.visible()
-                progressBar.bringToFront()
+                binding.apply {
+                    progressBar.apply {
+                        visible()
+                        bringToFront()
+                    }
+                }
             }
             ScreenState.Success -> {
-                progressBar.gone()
+                binding.progressBar.gone()
                 recyclerView.visible()
             }
         }
